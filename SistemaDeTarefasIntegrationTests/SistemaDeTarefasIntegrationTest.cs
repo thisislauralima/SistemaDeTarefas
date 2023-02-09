@@ -39,11 +39,39 @@ namespace SistemaDeTarefasIntegrationTests
         }
 
         [Test]
-        public async Task BuscarTodosUsuariosController_WhenOccursInternalError_ShouldReturn500()
+        public async Task BuscarUsuarioPorIdController_WhenPassedInexistentId_Returns404()
         {
-            var response = await _httpClient.GetAsync("api/usuario");
+            var response = await _httpClient.GetAsync($"api/usuario{3}");
 
-            Assert.That(HttpStatusCode.InternalServerError, Is.EqualTo(response.StatusCode));
+            Assert.That(HttpStatusCode.NotFound, Is.EqualTo(response.StatusCode));
+        }
+
+        [Test]
+        public async Task DeletarUsuarioController_WhenPassedInexistentId_ShouldReturn404()
+        {
+            var response = await _httpClient.DeleteAsync($"api/usuario/{999}");
+
+            Assert.That(HttpStatusCode.NotFound, Is.EqualTo(response.StatusCode));
+        }
+
+        [Test]
+        public async Task DeletarUsuarioController_WhenPassedCorrectId_ShouldReturn204()
+        {
+            var response = await _httpClient.DeleteAsync($"api/usuario/{2}");
+
+            Assert.That(HttpStatusCode.NoContent, Is.EqualTo(response.StatusCode));
+        }
+
+        [Test]
+        public async Task AtualizarUsuarioController_WhenPassedCorrectIdAndUser_ShouldReturnOk()
+        {
+            var user = new UsuarioModel() { Id = 3, Nome = "Maria", Email = "Maria@email.com" };
+            var serializedUser = JsonConvert.SerializeObject(user);
+            var stringContent = new StringContent(serializedUser, UnicodeEncoding.UTF8, "application/json");
+
+            var response = await _httpClient.PutAsync("api/usuario", stringContent);
+
+            Assert.That(HttpStatusCode.OK, Is.EqualTo(response.StatusCode));
         }
 
         //private async Task postUserToTest()
